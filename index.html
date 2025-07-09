@@ -1,19 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kryptax - Crypto Tax Simplified</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoTax India - Simplified Crypto Tax Filing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .cta-button {
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8;
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Kryptax</h1>
-    <p>Crypto Tax Made Simple</p>
-    <input type="file" id="csvFile" accept=".csv" multiple />
-    <button onclick="processCSV()">Generate Tax Report</button>
-    <div id="output"></div>
-  </div>
-  <script src="script.js"></script>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-effect">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold gradient-text">CryptoTax India</div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="hover:text-sky-400 transition-colors">Features</a>
+                <a href="#exchanges" class="hover:text-sky-400 transition-colors">Exchanges</a>
+                <a href="#calculator" class="hover:text-sky-400 transition-colors">Calculator</a>
+            </div>
+            <a href="#calculator" class="cta-button text-white font-bold py-2 px-6 rounded-lg">
+                Get Started
+            </a>
+        </nav>
+    </header>
+
+    <main class="pt-24">
+        <!-- Hero Section -->
+        <section class="container mx-auto px-6 py-24 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-4">
+                Calculate Your <span class="gradient-text">Crypto Taxes</span> in Minutes
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8">
+                Upload your CSV or Excel transaction reports from Indian exchanges like WazirX, CoinDCX, and Sun Crypto to generate an accurate tax report instantly.
+            </p>
+            <div class="flex justify-center">
+                <a href="#calculator" class="cta-button text-white font-bold py-4 px-10 rounded-lg text-lg">
+                    Generate Your Tax Report
+                </a>
+            </div>
+        </section>
+
+        <!-- Crypto Tax Calculator Section -->
+        <section id="calculator" class="container mx-auto px-6 py-20">
+            <div class="max-w-4xl mx-auto glass-effect rounded-2xl p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-center mb-2">Crypto Tax Calculator</h2>
+                <p class="text-slate-400 text-center mb-8">Select a financial year and upload your transaction history to get started.</p>
+                
+                <div class="max-w-xs mx-auto mb-8">
+                    <label for="financial-year" class="block text-sm font-medium text-slate-300 mb-2">Financial Year</label>
+                    <select id="financial-year" class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2.5">
+                        <option>2024-2025</option>
+                        <option>2023-2024</option>
+                        <option>2022-2023</option>
+                        <option>2021-2022</option>
+                    </select>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <!-- WazirX -->
+                    <div class="text-center">
+                        <img src="https://img.icons8.com/fluency/96/wazirx.png" alt="WazirX" class="mx-auto mb-4 h-16 w-16" onerror="this.onerror=null;this.src='https://placehold.co/96x96/0f172a/e2e8f0?text=WazirX';">
+                        <h3 class="font-semibold mb-2">WazirX</h3>
+                        <label for="wazirx-upload" class="cursor-pointer bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                            Upload File
+                        </label>
+                        <input type="file" id="wazirx-upload" class="hidden" accept=".csv,.xlsx,.xls" data-exchange="WazirX">
+                    </div>
+                    <!-- CoinDCX -->
+                    <div class="text-center">
+                        <img src="https://img.icons8.com/color/96/coindcx.png" alt="CoinDCX" class="mx-auto mb-4 h-16 w-16" onerror="this.onerror=null;this.src='https://placehold.co/96x96/0f172a/e2e8f0?text=CoinDCX';">
+                        <h3 class="font-semibold mb-2">CoinDCX</h3>
+                        <label for="coindcx-upload" class="cursor-pointer bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                            Upload File
+                        </label>
+                        <input type="file" id="coindcx-upload" class="hidden" accept=".csv,.xlsx,.xls" data-exchange="CoinDCX">
+                    </div>
+                    <!-- Sun Crypto -->
+                    <div class="text-center">
+                        <img src="https://img.icons8.com/arcade/64/sun.png" alt="Sun Crypto" class="mx-auto mb-4 h-16 w-16" onerror="this.onerror=null;this.src='https://placehold.co/96x96/0f172a/e2e8f0?text=SunCrypto';">
+                        <h3 class="font-semibold mb-2">Sun Crypto</h3>
+                        <label for="suncrypto-upload" class="cursor-pointer bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                            Upload File
+                        </label>
+                        <input type="file" id="suncrypto-upload" class="hidden" accept=".csv,.xlsx,.xls" data-exchange="Sun Crypto">
+                    </div>
+                </div>
+
+                <div id="file-status" class="text-center text-slate-400 mb-8">
+                    <!-- File upload status will be shown here -->
+                </div>
+
+                <div class="text-center">
+                    <button id="generate-report" class="cta-button text-white font-bold py-3 px-8 rounded-lg text-lg opacity-50 cursor-not-allowed" disabled>
+                        Calculate Taxes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Output Section -->
+            <div id="report-output" class="hidden max-w-4xl mx-auto glass-effect rounded-2xl p-8 md:p-12 mt-10">
+                <h3 class="text-2xl font-bold text-center mb-6">Your Tax Report Summary</h3>
+                <div id="report-summary-content" class="grid md:grid-cols-2 gap-6 text-lg">
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">Total Turnover (Sales)</p>
+                        <p id="total-turnover" class="text-2xl font-semibold text-white">₹0.00</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">Capital Gains (Taxable)</p>
+                        <p id="capital-gains" class="text-2xl font-semibold text-green-400">₹0.00</p>
+                    </div>
+                     <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">Capital Losses (For Info)</p>
+                        <p id="capital-losses" class="text-2xl font-semibold text-red-400">₹0.00</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">Net Taxable Income</p>
+                        <p id="net-taxable-income" class="text-2xl font-semibold text-white">₹0.00</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">Tax Payable (30%)</p>
+                        <p id="tax-payable" class="text-2xl font-semibold text-orange-400">₹0.00</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg">
+                        <p class="text-slate-400">TDS Deductible (1%)</p>
+                        <p id="tds-deductible" class="text-2xl font-semibold text-sky-400">₹0.00</p>
+                    </div>
+                </div>
+                 <div id="report-error" class="hidden text-center text-red-400 my-4"></div>
+                 <div class="text-center mt-8">
+                    <button id="download-report" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg">
+                        Download Tax Report (PDF)
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const { jsPDF } = window.jspdf;
+            
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            const generateReportBtn = document.getElementById('generate-report');
+            const downloadReportBtn = document.getElementById('download-report');
+            const fileStatusDiv = document.getElementById('file-status');
+            const reportOutputDiv = document.getElementById('report-output');
+            const reportErrorDiv = document.getElementById('report-error');
+            const reportSummaryContent = document.getElementById('report-summary-content');
+            const fySelect = document.getElementById('financial-year');
+            
+            let allSalesData = [];
+            let reportSummary = {};
+            const uploadedFiles = {};
+
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        const exchange = this.dataset.exchange;
+                        uploadedFiles[exchange] = this.files[0];
+                        updateFileStatus();
+                        checkEnableButton();
+                    }
+                });
+            });
+
+            function updateFileStatus() {
+                fileStatusDiv.innerHTML = '';
+                const files = Object.keys(uploadedFiles);
+                if (files.length > 0) {
+                    const statusText = files.map(exchange => 
+                        `<span class="inline-block bg-slate-700 rounded-full px-3 py-1 text-sm font-semibold text-slate-200 mr-2 mb-2">${exchange}: ${uploadedFiles[exchange].name}</span>`
+                    ).join('');
+                    fileStatusDiv.innerHTML = `<strong>Files ready for processing:</strong><div class="mt-2">${statusText}</div>`;
+                } else {
+                    fileStatusDiv.innerHTML = 'Upload your transaction history to get started.';
+                }
+            }
+
+            function checkEnableButton() {
+                if (Object.keys(uploadedFiles).length > 0) {
+                    generateReportBtn.disabled = false;
+                    generateReportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    generateReportBtn.disabled = true;
+                    generateReportBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            function readFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = e.target.result;
+                        try {
+                            if (file.name.endsWith('.csv')) {
+                                Papa.parse(data, {
+                                    header: true,
+                                    skipEmptyLines: true,
+                                    complete: (results) => resolve(results.data),
+                                    error: (error) => reject(error),
+                                });
+                            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                                const wazirxSheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('exchange trades'));
+                                const coindcxSheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('spot orders'));
+                                const sunCryptoSheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('trade report'));
+                                
+                                const sheetName = wazirxSheetName || coindcxSheetName || sunCryptoSheetName || workbook.SheetNames[0];
+                                
+                                if (!sheetName) {
+                                    return reject(new Error(`Could not find a valid trade sheet in ${file.name}`));
+                                }
+
+                                const worksheet = workbook.Sheets[sheetName];
+                                const json = XLSX.utils.sheet_to_json(worksheet);
+                                resolve(json);
+                            } else {
+                                reject(new Error("Unsupported file type. Please upload CSV or Excel files."));
+                            }
+                        } catch (err) {
+                            if (err.message.includes("Bad compressed size")) {
+                                reject(new Error(`Error reading ${file.name}. The file may be corrupted or in an unsupported Excel format. Please try re-downloading it or saving it as a CSV.`));
+                            } else {
+                                reject(err);
+                            }
+                        }
+                    };
+                    reader.onerror = (error) => reject(error);
+
+                    if (file.name.endsWith('.csv')) {
+                        reader.readAsText(file);
+                    } else {
+                        reader.readAsArrayBuffer(file);
+                    }
+                });
+            }
+
+            function parseDate(dateString) {
+                if (!dateString) return null;
+                 if (dateString instanceof Date) {
+                    if (!isNaN(dateString.getTime())) {
+                        return new Date(Date.UTC(dateString.getFullYear(), dateString.getMonth(), dateString.getDate()));
+                    }
+                    return null;
+                }
+                if (typeof dateString !== 'string') return null;
+
+                const cleanedDateString = dateString.trim().split(' ')[0]; 
+                let match;
+                match = cleanedDateString.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
+                if (match) {
+                    const [_, year, month, day] = match.map(Number);
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    if (!isNaN(date.getTime())) return date;
+                }
+                match = cleanedDateString.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+                if (match) {
+                    const [_, day, month, year] = match.map(Number);
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    if (!isNaN(date.getTime())) return date;
+                }
+                const date = new Date(dateString);
+                if (!isNaN(date.getTime())) {
+                    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                }
+                return null;
+            }
+
+            function cleanNumber(value) {
+                if (typeof value === 'number') {
+                    return value;
+                }
+                if (typeof value === 'string') {
+                    return parseFloat(value.replace(/[₹,]/g, '').trim());
+                }
+                return NaN;
+            }
+
+          function normalizeTransaction(tx) {
+    const date = parseDate(getValue(tx, [
+        'date', 'date_time', 'created at', 'timestamp', 'trade completion time'
+    ]));
+    if (!date) return null;
+
+    const side = (getValue(tx, [
+        'side', 'type', 'txn type', 'trade type', 'side (buy/sell)'
+    ]) || '').toLowerCase();
+
+    let market = (getValue(tx, [
+        'symbol', 'market', 'coin', 'crypto', 'asset', 'crypto pair'
+    ]) || '');
+    market = market.toUpperCase().replace('/INR', '').replace('INR', '').replace('/USDT', '');
+
+    let amount = cleanNumber(getValue(tx, [
+        'quantity', 'volume', 'crypto amount', 'executed quantity'
+    ]));
+
+    let total = cleanNumber(getValue(tx, [
+        'value', 'total', 'amount', 'total (price x volume)', 'gross amount paid/received by the user(in base currency)'
+    ]));
+
+    let price = cleanNumber(getValue(tx, [
+        'price', 'rate', 'avg buying/selling price(in base currency)'
+    ]));
+
+    let fee = cleanNumber(getValue(tx, [
+        'fee', 'fee(inr)', 'fee amount', 'fees(in base currency)'
+    ]) || 0);
+
+    if (isNaN(total) && !isNaN(amount) && !isNaN(price)) {
+        total = amount * price;
+    }
+    if (isNaN(amount) && !isNaN(total) && !isNaN(price) && price > 0) {
+        amount = total / price;
+    }
+
+    if (!side || !market || isNaN(amount) || isNaN(total) || amount <= 0) {
+        return null;
+    }
+
+    return { date, side, market, amount, total, fee };
+}
+function getValue(obj, keys) {
+    const lowerCaseObj = Object.keys(obj).reduce((acc, key) => {
+        acc[key.toLowerCase().trim()] = obj[key];
+        return acc;
+    }, {});
+
+    for (const key of keys) {
+        const value = lowerCaseObj[key.toLowerCase().trim()];
+        if (value !== undefined && value !== null && value !== '') {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+function normalizeTransaction(tx) {
+    const date = parseDate(getValue(tx, [
+        'date', 'date_time', 'created at', 'timestamp', 'trade completion time'
+    ]));
+    if (!date) return null;
+
+    const side = (getValue(tx, [
+        'side', 'type', 'txn type', 'trade type', 'side (buy/sell)'
+    ]) || '').toLowerCase();
+
+    let market = (getValue(tx, [
+        'symbol', 'market', 'coin', 'crypto', 'asset', 'crypto pair'
+    ]) || '');
+    market = market.toUpperCase().replace('/INR', '').replace('INR', '').replace('/USDT', '');
+
+    let amount = cleanNumber(getValue(tx, [
+        'quantity', 'volume', 'crypto amount', 'executed quantity'
+    ]));
+
+    let total = cleanNumber(getValue(tx, [
+        'value', 'total', 'amount', 'total (price x volume)', 'gross amount paid/received by the user(in base currency)'
+    ]));
+
+    let price = cleanNumber(getValue(tx, [
+        'price', 'rate', 'avg buying/selling price(in base currency)'
+    ]));
+
+    let fee = cleanNumber(getValue(tx, [
+        'fee', 'fee(inr)', 'fee amount', 'fees(in base currency)'
+    ]) || 0);
+
+    if (isNaN(total) && !isNaN(amount) && !isNaN(price)) {
+        total = amount * price;
+    }
+    if (isNaN(amount) && !isNaN(total) && !isNaN(price) && price > 0) {
+        amount = total / price;
+    }
+
+    if (!side || !market || isNaN(amount) || isNaN(total) || amount <= 0) {
+        return null;
+    }
+
+    return { date, side, market, amount, total, fee };
+}
+
+            async function handleReportGeneration() {
+                if (Object.keys(uploadedFiles).length === 0) return;
+                generateReportBtn.textContent = 'Calculating...';
+                generateReportBtn.disabled = true;
+                reportErrorDiv.classList.add('hidden');
+                reportSummaryContent.classList.remove('hidden');
+
+                try {
+                    const fy = fySelect.value.split('-');
+                    const fy_start = new Date(Date.UTC(fy[0], 3, 1));
+                    const fy_end = new Date(Date.UTC(fy[1], 3, 1));
+                    const parsingPromises = Object.values(uploadedFiles).map(file => readFile(file));
+                    const transactionArrays = await Promise.all(parsingPromises);
+                    const allTransactions = transactionArrays.flat()
+                        .map(normalizeTransaction)
+                        .filter(tx => tx && tx.date >= fy_start && tx.date < fy_end)
+                        .sort((a, b) => a.date - b.date);
+
+                    if (allTransactions.length === 0) {
+                        throw new Error("No valid transactions found for the selected financial year. Please check file formats and data.");
+                    }
+                    
+                    allSalesData = [];
+                    let totalGains = 0;
+                    let totalLosses = 0;
+                    let totalTurnover = 0;
+                    const transactionsByAsset = allTransactions.reduce((acc, tx) => {
+                        acc[tx.market] = acc[tx.market] || [];
+                        acc[tx.market].push(tx);
+                        return acc;
+                    }, {});
+
+                    for (const asset in transactionsByAsset) {
+                        const buyQueue = [];
+                        transactionsByAsset[asset].forEach(tx => {
+                            if (tx.side.includes('buy')) {
+                                const costWithFee = tx.total + tx.fee;
+                                buyQueue.push({ amount: tx.amount, total: costWithFee, price: costWithFee / tx.amount, date: tx.date });
+                            } else if (tx.side.includes('sell')) {
+                                const consideration = tx.total - tx.fee;
+                                totalTurnover += consideration;
+                                let sellAmount = tx.amount;
+                                let costOfAcquisition = 0;
+                                let acquisitionDate = null;
+                                
+                                while (sellAmount > 0 && buyQueue.length > 0) {
+                                    const oldestBuy = buyQueue[0];
+                                    if (!acquisitionDate) {
+                                        acquisitionDate = oldestBuy.date;
+                                    }
+                                    const amountToProcess = Math.min(sellAmount, oldestBuy.amount);
+                                    
+                                    costOfAcquisition += amountToProcess * oldestBuy.price;
+                                    
+                                    oldestBuy.amount -= amountToProcess;
+                                    sellAmount -= amountToProcess;
+
+                                    if (oldestBuy.amount <= 1e-8) {
+                                        buyQueue.shift();
+                                    }
+                                }
+                                
+                                const profit = consideration - costOfAcquisition;
+
+                                allSalesData.push({
+                                    asset: asset,
+                                    dateOfAcquisition: acquisitionDate,
+                                    dateOfTransfer: tx.date,
+                                    consideration: consideration,
+                                    cost: costOfAcquisition,
+                                    profit: profit
+                                });
+
+                                if (profit > 0) {
+                                    totalGains += profit;
+                                } else {
+                                    totalLosses += Math.abs(profit);
+                                }
+                            }
+                        });
+                    }
+
+                    const netTaxableIncome = totalGains;
+                    const taxPayable = netTaxableIncome * 0.30;
+                    const tdsDeductible = totalTurnover * 0.01;
+
+                    const formatCurrency = (num) => `₹${num.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+                    reportSummary = {
+                        totalTurnover: totalTurnover,
+                        capitalGains: totalGains,
+                        capitalLosses: totalLosses,
+                        netTaxableIncome: netTaxableIncome,
+                        taxPayable: taxPayable,
+                        tdsDeductible: tdsDeductible
+                    };
+
+                    document.getElementById('total-turnover').textContent = formatCurrency(reportSummary.totalTurnover);
+                    document.getElementById('capital-gains').textContent = formatCurrency(reportSummary.capitalGains);
+                    document.getElementById('capital-losses').textContent = formatCurrency(reportSummary.capitalLosses);
+                    document.getElementById('net-taxable-income').textContent = formatCurrency(reportSummary.netTaxableIncome);
+                    document.getElementById('tax-payable').textContent = formatCurrency(reportSummary.taxPayable);
+                    document.getElementById('tds-deductible').textContent = formatCurrency(reportSummary.tdsDeductible);
+
+                } catch (error) {
+                    console.error("Error processing files:", error);
+                    reportSummaryContent.classList.add('hidden');
+                    reportErrorDiv.textContent = `Error: ${error.message}`;
+                    reportErrorDiv.classList.remove('hidden');
+                } finally {
+                    reportOutputDiv.classList.remove('hidden');
+                    reportOutputDiv.scrollIntoView({ behavior: 'smooth' });
+                    generateReportBtn.textContent = 'Calculate Taxes';
+                    generateReportBtn.disabled = false;
+                }
+            }
+
+            function handleDownload() {
+                if (allSalesData.length === 0) {
+                    alert("No sales transactions found to generate a report. Please check your data or generate a report first.");
+                    return;
+                }
+                const doc = new jsPDF();
+                const financialYear = fySelect.value;
+                const formatCurrency = (num) => `₹${num.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+                doc.setFontSize(18);
+                doc.text("Crypto Tax Report", 14, 22);
+                doc.setFontSize(11);
+                doc.text(`Financial Year: ${financialYear}`, 14, 30);
+
+                doc.autoTable({
+                    startY: 40,
+                    head: [['Summary', 'Amount']],
+                    body: [
+                        ['Total Turnover (Sales)', formatCurrency(reportSummary.totalTurnover)],
+                        ['Capital Gains (Taxable)', formatCurrency(reportSummary.capitalGains)],
+                        ['Capital Losses (For Info)', formatCurrency(reportSummary.capitalLosses)],
+                        ['Net Taxable Income', formatCurrency(reportSummary.netTaxableIncome)],
+                        ['Tax Payable (30%)', formatCurrency(reportSummary.taxPayable)],
+                        ['TDS Deductible (1%)', formatCurrency(reportSummary.tdsDeductible)],
+                    ],
+                    theme: 'grid'
+                });
+
+                const tableBody = allSalesData.map(row => [
+                    row.asset,
+                    new Date(row.dateOfAcquisition).toLocaleDateString('en-GB'),
+                    new Date(row.dateOfTransfer).toLocaleDateString('en-GB'),
+                    row.consideration.toFixed(2),
+                    row.cost.toFixed(2),
+                    row.profit.toFixed(2)
+                ]);
+
+                doc.autoTable({
+                    startY: doc.lastAutoTable.finalY + 15,
+                    head: [["Coin", "Date of Acquisition", "Date of Transfer", "Full value of consideration", "Cost of acquisition", "Income from transfer of VDA"]],
+                    body: tableBody,
+                    theme: 'striped'
+                });
+
+                doc.save(`Crypto-Tax-Report-${financialYear}.pdf`);
+            }
+
+            generateReportBtn.addEventListener('click', handleReportGeneration);
+            downloadReportBtn.addEventListener('click', handleDownload);
+
+        });
+    </script>
 </body>
 </html>
+
